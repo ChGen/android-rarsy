@@ -1,0 +1,3 @@
+[submodule "sub/rars"]
+	path = sub/rars
+	url = git@github.com:TheThirdOne/rars.git
