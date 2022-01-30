@@ -15,6 +15,11 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    sourceSets {
+        main.java.exclude '**/rars/venus/**'
+        main.java.srcDirs += '../../sub/rars/src'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
