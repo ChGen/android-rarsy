@@ -16,8 +16,18 @@ android {
     }
 
     sourceSets {
-        main.java.exclude '**/rars/venus/**'
         main.java.srcDirs += '../../sub/rars/src'
+        main.java.exclude '**/rars/venus1/**'
+//        main.java.srcDirs += ['../../sub/rars/src/rars/api',  '../../sub/rars/src/rars/assembler',
+//                              '../../sub/rars/src/rars/extras', '../../sub/rars/src/rars/riscv',
+//                              '../../sub/rars/src/rars/simulator', '../../sub/rars/src/rars/util',
+//                              '../../sub/rars/src/rars/*.java']
+        //main.java.exclude '**/rars/tools/BHTSimulator.java'
+        main.java.exclude '**/rars/tools/**'
+        main.java.exclude '**/rars/riscv/syscalls/ToneGenerator.java'
+        main.java.exclude '**/rars/util/EditorFont.java'
+
+        main.resources.srcDirs = ['src/main/resources']
     }
 
     buildTypes {
