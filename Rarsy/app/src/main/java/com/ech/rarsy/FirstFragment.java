@@ -1,32 +1,35 @@
 package com.ech.rarsy;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.ech.rarsy.databinding.FragmentFirstBinding;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+import rars.Globals;
 import rars.Launch;
+
+import rars.venus.VenusUIDelegate;
 
 public class FirstFragment extends Fragment {
 
@@ -54,19 +57,53 @@ public class FirstFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 File dir = view.getContext().getCacheDir();
-                File outFile = null;
                 try {
+                    Globals.setGuiDelegate(new VenusUIDelegate() {
+                        @Override
+                        public String getInputString(String prompt, int maxlength, Boolean isPopup) {
+                            Handler handler = new Handler(Looper.getMainLooper());
+                            final FutureObject<String> input = new FutureObject<>();
+                            handler.post(() -> {
+                                requestInput(view, input);
+                            });
+                            return input.get();
+                        }
+                    });
                     System.setOut(new OutStream(System.out));
-                    outFile = File.createTempFile("prefix1", "suffix1.asm", dir);
+                    final File outFile = File.createTempFile("prefix1", "suffix1.asm", dir);
                     Files.write(Paths.get(outFile.getAbsolutePath()), Arrays.asList(asmText.getText()), Charset.defaultCharset());
-                    Launch.main(new String[]{"nc", outFile.getAbsolutePath()});
-                } catch (Throwable e) {
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Launch.main(new String[]{"nc", outFile.getAbsolutePath()});
+                        }
+                    }).start();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 //                NavHostFragment.findNavController(FirstFragment.this)
 //                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
             }
         });
+    }
+
+    private void requestInput(View parent, FutureObject<String> result) {
+        EditText inputEditTextField = new EditText(parent.getContext());
+        AlertDialog dialog = new AlertDialog.Builder(parent.getContext())
+                .setTitle("Enter value!")
+                .setMessage("Your value:")
+                .setView(inputEditTextField)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String editTextInput = inputEditTextField.getText().toString();
+                        result.set(editTextInput);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        dialog.show();
     }
 
     @Override
@@ -77,12 +114,6 @@ public class FirstFragment extends Fragment {
     private static class OutStream extends PrintStream {
         public OutStream(OutputStream out) {
             super(out); //TODO: basic is OutputStream.write(...);
-        }
-        @Override
-        public void println(String s) {
-            super.println(s);
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(() -> Toast.makeText(FirstFragment.appContext, "MSG: " + s, Toast.LENGTH_LONG).show());
         }
 
         @Override
@@ -118,6 +149,30 @@ public class FirstFragment extends Fragment {
             super.println(i);
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(() -> Toast.makeText(FirstFragment.appContext, "MSG: " + i, Toast.LENGTH_LONG).show());
+        }
+    }
+
+    public static class FutureObject<T> {
+        T object;
+        boolean ready;
+
+        synchronized void set(T object) {
+            this.object = object;
+            this.ready = true;
+            notifyAll();
+        }
+
+        T get() {
+            while (!ready) {
+                synchronized(this) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        return null;
+                    }
+                }
+            }
+            return object;
         }
     }
 }

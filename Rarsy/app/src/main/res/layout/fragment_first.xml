@@ -26,7 +26,7 @@
             android:id="@+id/asm_text"
             android:layout_width="match_parent"
             android:layout_height="269dp"
-            android:text="@string/print_int"
+            android:text="@string/read_int"
             />
     </com.google.android.material.textfield.TextInputLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

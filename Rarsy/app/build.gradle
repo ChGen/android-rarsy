@@ -18,6 +18,8 @@ android {
     sourceSets {
         main.java.srcDirs += '../../sub/rars/src'
         main.java.exclude '**/rars/venus1/**'
+//        main.java.exclude '**/rars/venus/run/RunSpeedPanel.java'
+//        main.java.exclude '**/rars/venus/NumberDisplayBaseChooser.java'
 //        main.java.srcDirs += ['../../sub/rars/src/rars/api',  '../../sub/rars/src/rars/assembler',
 //                              '../../sub/rars/src/rars/extras', '../../sub/rars/src/rars/riscv',
 //                              '../../sub/rars/src/rars/simulator', '../../sub/rars/src/rars/util',
@@ -43,6 +45,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.ech.rarsy'
 }
 
 dependencies {
