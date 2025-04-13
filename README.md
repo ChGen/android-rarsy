@@ -12,3 +12,8 @@ git submodule update --init --checkout --recursive
 2. Open `./Rarsy/` in Android Studio
 3. Build and run android app. No NDK required.
 4. Add provides ready-to-use snipped. Press run and enjoy RISC-V assembly!
+
+
+# Screenshot
+
+![RARSy](screenshots/RARSy-1.png)
